@@ -1,9 +1,5 @@
 // ============================================
 // Программа: Система учета студентов и их оценок
-// Автор: Студент группы ИТ-21
-// Дата: 2024
-// Описание: Консольное приложение для ведения
-//           учета студентов и их успеваемости
 // ============================================
 
 #include <iostream>  // для ввода-вывода (cin, cout)
@@ -11,7 +7,6 @@
 #include <vector>    // для динамических массивов
 #include <fstream>   // для работы с файлами
 #include <iomanip>   // для форматирования вывода
-#include <limits>    // для очистки буфера ввода
 #include <windows.h> // для поддержки русского языка в консоли
 
 using namespace std; // чтобы не писать std:: перед каждой командой
@@ -47,10 +42,33 @@ void deleteStudent();
 void calculateAverages();
 void saveToFile();
 void loadFromFile();
-void clearInput();
 int getValidGrade(const string& subject);
 void showStudentDetails(const Student& s);
-void pause();
+void pauseProgram();
+string readLine();
+int readInt();
+
+// ============================================
+// Вспомогательная функция чтения строки
+// ============================================
+string readLine() {
+    string line;
+    getline(cin, line);
+    return line;
+}
+
+// ============================================
+// Вспомогательная функция чтения целого числа
+// ============================================
+int readInt() {
+    string line;
+    getline(cin, line);
+    try {
+        return stoi(line);
+    } catch (...) {
+        return -999; // код ошибки
+    }
+}
 
 // ============================================
 // Главная функция - точка входа в программу
@@ -70,18 +88,14 @@ int main() {
         showMenu(); // показываем меню
         
         cout << "Введите номер действия: ";
-        cin >> choice;
+        choice = readInt();
         
         // Проверяем, не ввел ли пользователь букву вместо цифры
-        if (cin.fail()) {
-            clearInput();
+        if (choice == -999) {
             cout << "\n[!] Ошибка: введите число от 0 до 8!\n";
-            pause();
+            pauseProgram();
             continue; // возвращаемся к началу цикла
         }
-        
-        // Очищаем буфер после ввода числа
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         
         // Обрабатываем выбор пользователя с помощью switch
         switch (choice) {
@@ -105,9 +119,12 @@ int main() {
                 break;
             case 7:
                 saveToFile();      // сохранить в файл
+                pauseProgram();
                 break;
             case 8:
                 loadFromFile();    // загрузить из файла
+                cout << "[i] Данные загружены.\n";
+                pauseProgram();
                 break;
             case 0:
                 // Сохраняем данные перед выходом
@@ -117,7 +134,7 @@ int main() {
             default:
                 // Если пользователь ввел неправильное число
                 cout << "\n[!] Неверный выбор! Попробуйте снова.\n";
-                pause();
+                pauseProgram();
         }
         
     } while (choice != 0); // цикл продолжается пока не введут 0
@@ -133,19 +150,19 @@ void showMenu() {
     system("cls");
     
     cout << "\n";
-    cout << "╔════════════════════════════════════════════════╗\n";
-    cout << "║     СИСТЕМА УЧЕТА СТУДЕНТОВ И ИХ ОЦЕНОК        ║\n";
-    cout << "╠════════════════════════════════════════════════╣\n";
-    cout << "║  1. Добавить нового студента                   ║\n";
-    cout << "║  2. Показать всех студентов                    ║\n";
-    cout << "║  3. Найти студента                             ║\n";
-    cout << "║  4. Редактировать данные студента              ║\n";
-    cout << "║  5. Удалить студента                           ║\n";
-    cout << "║  6. Рассчитать средние баллы                   ║\n";
-    cout << "║  7. Сохранить данные в файл                    ║\n";
-    cout << "║  8. Загрузить данные из файла                  ║\n";
-    cout << "║  0. Выход из программы                         ║\n";
-    cout << "╚════════════════════════════════════════════════╝\n";
+    cout << "==============================================\n";
+    cout << "     СИСТЕМА УЧЕТА СТУДЕНТОВ И ИХ ОЦЕНОК      \n";
+    cout << "==============================================\n";
+    cout << "  1. Добавить нового студента                 \n";
+    cout << "  2. Показать всех студентов                  \n";
+    cout << "  3. Найти студента                           \n";
+    cout << "  4. Редактировать данные студента            \n";
+    cout << "  5. Удалить студента                         \n";
+    cout << "  6. Рассчитать средние баллы                 \n";
+    cout << "  7. Сохранить данные в файл                  \n";
+    cout << "  8. Загрузить данные из файла                \n";
+    cout << "  0. Выход из программы                       \n";
+    cout << "==============================================\n";
     cout << "\n";
     cout << "Всего студентов в базе: " << students.size() << "\n\n";
 }
@@ -161,28 +178,25 @@ void addStudent() {
     
     // Присваиваем уникальный ID
     newStudent.id = nextId;
-    nextId++; // увеличиваем счетчик для следующего студента
     
     // Вводим ФИО
     cout << "Введите ФИО студента: ";
-    getline(cin, newStudent.fullName);
+    newStudent.fullName = readLine();
     
     // Проверяем что ФИО не пустое
     if (newStudent.fullName.empty()) {
         cout << "\n[!] Ошибка: ФИО не может быть пустым!\n";
-        nextId--; // откатываем ID назад
-        pause();
+        pauseProgram();
         return;
     }
     
     // Вводим группу
     cout << "Введите номер группы: ";
-    getline(cin, newStudent.group);
+    newStudent.group = readLine();
     
     if (newStudent.group.empty()) {
         cout << "\n[!] Ошибка: группа не может быть пустой!\n";
-        nextId--;
-        pause();
+        pauseProgram();
         return;
     }
     
@@ -192,11 +206,14 @@ void addStudent() {
     newStudent.physicsGrade = getValidGrade("Физика");
     newStudent.programmingGrade = getValidGrade("Программирование");
     
+    // Увеличиваем счетчик ID только после успешного добавления
+    nextId++;
+    
     // Добавляем студента в массив
     students.push_back(newStudent);
     
     cout << "\n[+] Студент успешно добавлен! ID: " << newStudent.id << "\n";
-    pause();
+    pauseProgram();
 }
 
 // ============================================
@@ -207,13 +224,12 @@ int getValidGrade(const string& subject) {
     
     // Цикл будет повторяться пока не введут правильную оценку
     while (true) {
-        cout << subject << ": ";
-        cin >> grade;
+        cout << "  " << subject << ": ";
+        grade = readInt();
         
         // Проверка на ошибку ввода (если ввели не число)
-        if (cin.fail()) {
-            clearInput();
-            cout << "[!] Введите число от 1 до 5!\n";
+        if (grade == -999) {
+            cout << "  [!] Введите число от 1 до 5!\n";
             continue;
         }
         
@@ -221,7 +237,7 @@ int getValidGrade(const string& subject) {
         if (grade >= 1 && grade <= 5) {
             return grade; // оценка правильная, возвращаем её
         } else {
-            cout << "[!] Оценка должна быть от 1 до 5!\n";
+            cout << "  [!] Оценка должна быть от 1 до 5!\n";
         }
     }
 }
@@ -236,32 +252,32 @@ void showAllStudents() {
     // Проверяем, есть ли студенты в базе
     if (students.empty()) {
         cout << "[i] База данных пуста. Добавьте студентов.\n";
-        pause();
+        pauseProgram();
         return;
     }
     
     // Выводим заголовок таблицы
     cout << left; // выравнивание по левому краю
     cout << setw(5) << "ID" 
-         << setw(25) << "ФИО" 
+         << setw(30) << "ФИО" 
          << setw(10) << "Группа"
          << setw(6) << "Мат"
          << setw(6) << "Физ"
          << setw(6) << "Прог"
-         << setw(8) << "Средн." << "\n";
+         << setw(8) << "Сред." << "\n";
     
     // Рисуем линию-разделитель
-    cout << string(66, '-') << "\n";
+    cout << string(71, '-') << "\n";
     
     // Проходим по всем студентам и выводим их данные
-    for (int i = 0; i < students.size(); i++) {
+    for (size_t i = 0; i < students.size(); i++) {
         // Считаем средний балл
         double avg = (students[i].mathGrade + 
                       students[i].physicsGrade + 
                       students[i].programmingGrade) / 3.0;
         
         cout << setw(5) << students[i].id
-             << setw(25) << students[i].fullName
+             << setw(30) << students[i].fullName
              << setw(10) << students[i].group
              << setw(6) << students[i].mathGrade
              << setw(6) << students[i].physicsGrade
@@ -269,10 +285,10 @@ void showAllStudents() {
              << setw(8) << fixed << setprecision(2) << avg << "\n";
     }
     
-    cout << string(66, '-') << "\n";
+    cout << string(71, '-') << "\n";
     cout << "Всего студентов: " << students.size() << "\n";
     
-    pause();
+    pauseProgram();
 }
 
 // ============================================
@@ -284,7 +300,7 @@ void searchStudent() {
     
     if (students.empty()) {
         cout << "[i] База данных пуста.\n";
-        pause();
+        pauseProgram();
         return;
     }
     
@@ -294,13 +310,11 @@ void searchStudent() {
     cout << "3. По группе\n";
     cout << "\nВаш выбор: ";
     
-    int searchType;
-    cin >> searchType;
+    int searchType = readInt();
     
-    if (cin.fail()) {
-        clearInput();
+    if (searchType == -999) {
         cout << "[!] Ошибка ввода!\n";
-        pause();
+        pauseProgram();
         return;
     }
     
@@ -308,12 +322,11 @@ void searchStudent() {
     
     if (searchType == 1) {
         // Поиск по ID
-        int searchId;
         cout << "Введите ID студента: ";
-        cin >> searchId;
+        int searchId = readInt();
         
         // Ищем студента с таким ID
-        for (int i = 0; i < students.size(); i++) {
+        for (size_t i = 0; i < students.size(); i++) {
             if (students[i].id == searchId) {
                 cout << "\n[+] Студент найден!\n";
                 showStudentDetails(students[i]);
@@ -324,16 +337,14 @@ void searchStudent() {
         
     } else if (searchType == 2) {
         // Поиск по ФИО (частичное совпадение)
-        clearInput();
-        string searchName;
         cout << "Введите ФИО или его часть: ";
-        getline(cin, searchName);
+        string searchName = readLine();
         
         cout << "\nРезультаты поиска:\n";
         cout << string(50, '-') << "\n";
         
         // Ищем всех студентов, у которых ФИО содержит искомую строку
-        for (int i = 0; i < students.size(); i++) {
+        for (size_t i = 0; i < students.size(); i++) {
             // Функция find ищет подстроку в строке
             if (students[i].fullName.find(searchName) != string::npos) {
                 showStudentDetails(students[i]);
@@ -344,15 +355,13 @@ void searchStudent() {
         
     } else if (searchType == 3) {
         // Поиск по группе
-        clearInput();
-        string searchGroup;
         cout << "Введите номер группы: ";
-        getline(cin, searchGroup);
+        string searchGroup = readLine();
         
         cout << "\nСтуденты группы " << searchGroup << ":\n";
         cout << string(50, '-') << "\n";
         
-        for (int i = 0; i < students.size(); i++) {
+        for (size_t i = 0; i < students.size(); i++) {
             if (students[i].group == searchGroup) {
                 showStudentDetails(students[i]);
                 cout << string(50, '-') << "\n";
@@ -362,7 +371,7 @@ void searchStudent() {
         
     } else {
         cout << "[!] Неверный выбор!\n";
-        pause();
+        pauseProgram();
         return;
     }
     
@@ -370,7 +379,7 @@ void searchStudent() {
         cout << "\n[!] Студенты не найдены.\n";
     }
     
-    pause();
+    pauseProgram();
 }
 
 // ============================================
@@ -399,24 +408,22 @@ void editStudent() {
     
     if (students.empty()) {
         cout << "[i] База данных пуста.\n";
-        pause();
+        pauseProgram();
         return;
     }
     
     cout << "Введите ID студента для редактирования: ";
-    int editId;
-    cin >> editId;
+    int editId = readInt();
     
-    if (cin.fail()) {
-        clearInput();
+    if (editId == -999) {
         cout << "[!] Ошибка ввода!\n";
-        pause();
+        pauseProgram();
         return;
     }
     
     // Ищем студента с таким ID
     int index = -1; // индекс найденного студента (-1 = не найден)
-    for (int i = 0; i < students.size(); i++) {
+    for (size_t i = 0; i < students.size(); i++) {
         if (students[i].id == editId) {
             index = i;
             break;
@@ -425,7 +432,7 @@ void editStudent() {
     
     if (index == -1) {
         cout << "[!] Студент с ID " << editId << " не найден!\n";
-        pause();
+        pauseProgram();
         return;
     }
     
@@ -444,21 +451,18 @@ void editStudent() {
     cout << "0. Отмена\n";
     cout << "\nВаш выбор: ";
     
-    int editChoice;
-    cin >> editChoice;
-    
-    clearInput();
+    int editChoice = readInt();
     
     switch (editChoice) {
         case 1: {
             cout << "Новое ФИО: ";
-            getline(cin, students[index].fullName);
+            students[index].fullName = readLine();
             cout << "[+] ФИО обновлено!\n";
             break;
         }
         case 2: {
             cout << "Новая группа: ";
-            getline(cin, students[index].group);
+            students[index].group = readLine();
             cout << "[+] Группа обновлена!\n";
             break;
         }
@@ -494,7 +498,7 @@ void editStudent() {
         }
     }
     
-    pause();
+    pauseProgram();
 }
 
 // ============================================
@@ -506,24 +510,22 @@ void deleteStudent() {
     
     if (students.empty()) {
         cout << "[i] База данных пуста.\n";
-        pause();
+        pauseProgram();
         return;
     }
     
     cout << "Введите ID студента для удаления: ";
-    int deleteId;
-    cin >> deleteId;
+    int deleteId = readInt();
     
-    if (cin.fail()) {
-        clearInput();
+    if (deleteId == -999) {
         cout << "[!] Ошибка ввода!\n";
-        pause();
+        pauseProgram();
         return;
     }
     
     // Ищем студента
     int index = -1;
-    for (int i = 0; i < students.size(); i++) {
+    for (size_t i = 0; i < students.size(); i++) {
         if (students[i].id == deleteId) {
             index = i;
             break;
@@ -532,7 +534,7 @@ void deleteStudent() {
     
     if (index == -1) {
         cout << "[!] Студент с ID " << deleteId << " не найден!\n";
-        pause();
+        pauseProgram();
         return;
     }
     
@@ -542,19 +544,17 @@ void deleteStudent() {
     
     // Запрашиваем подтверждение
     cout << "\nВы уверены? (1 - Да, 0 - Нет): ";
-    int confirm;
-    cin >> confirm;
+    int confirm = readInt();
     
     if (confirm == 1) {
         // Удаляем студента из вектора
-        // erase удаляет элемент по итератору (begin + индекс)
         students.erase(students.begin() + index);
         cout << "\n[+] Студент удален!\n";
     } else {
         cout << "\n[i] Удаление отменено.\n";
     }
     
-    pause();
+    pauseProgram();
 }
 
 // ============================================
@@ -566,7 +566,7 @@ void calculateAverages() {
     
     if (students.empty()) {
         cout << "[i] База данных пуста.\n";
-        pause();
+        pauseProgram();
         return;
     }
     
@@ -582,7 +582,7 @@ void calculateAverages() {
     int poorCount = 0;       // неудовлетворительно (средний < 2.5)
     
     // Считаем суммы и статистику
-    for (int i = 0; i < students.size(); i++) {
+    for (size_t i = 0; i < students.size(); i++) {
         totalMath += students[i].mathGrade;
         totalPhysics += students[i].physicsGrade;
         totalProgramming += students[i].programmingGrade;
@@ -627,7 +627,7 @@ void calculateAverages() {
     // Находим лучшего студента
     double maxAvg = 0;
     int bestIndex = 0;
-    for (int i = 0; i < students.size(); i++) {
+    for (size_t i = 0; i < students.size(); i++) {
         double avg = (students[i].mathGrade + 
                       students[i].physicsGrade + 
                       students[i].programmingGrade) / 3.0;
@@ -641,7 +641,7 @@ void calculateAverages() {
     cout << "  " << students[bestIndex].fullName;
     cout << " (средний балл: " << fixed << setprecision(2) << maxAvg << ")\n";
     
-    pause();
+    pauseProgram();
 }
 
 // ============================================
@@ -654,7 +654,6 @@ void saveToFile() {
     // Проверяем, открылся ли файл
     if (!file.is_open()) {
         cout << "\n[!] Ошибка: не удалось открыть файл для записи!\n";
-        pause();
         return;
     }
     
@@ -665,7 +664,7 @@ void saveToFile() {
     file << students.size() << "\n";
     
     // Записываем каждого студента
-    for (int i = 0; i < students.size(); i++) {
+    for (size_t i = 0; i < students.size(); i++) {
         file << students[i].id << "\n";
         file << students[i].fullName << "\n";
         file << students[i].group << "\n";
@@ -676,8 +675,7 @@ void saveToFile() {
     
     file.close(); // закрываем файл
     
-    cout << "\n[+] Данные успешно сохранены в файл " << FILE_NAME << "!\n";
-    pause();
+    cout << "\n[+] Данные сохранены в файл " << FILE_NAME << "!\n";
 }
 
 // ============================================
@@ -723,23 +721,12 @@ void loadFromFile() {
     }
     
     file.close();
-    
-    cout << "[i] Загружено студентов из файла: " << students.size() << "\n";
-}
-
-// ============================================
-// Вспомогательная функция очистки буфера ввода
-// ============================================
-void clearInput() {
-    cin.clear(); // сбрасываем флаг ошибки
-    // Игнорируем все символы в буфере до конца строки
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
 
 // ============================================
 // Функция паузы - ждет нажатия Enter
 // ============================================
-void pause() {
+void pauseProgram() {
     cout << "\nНажмите Enter для продолжения...";
-    cin.get(); // ждем нажатия Enter
+    readLine(); // ждем нажатия Enter
 }
