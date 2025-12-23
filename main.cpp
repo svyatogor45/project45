@@ -7,6 +7,7 @@
 #include <vector>    // для динамических массивов
 #include <fstream>   // для работы с файлами
 #include <iomanip>   // для форматирования вывода
+#include <clocale>   // для setlocale
 #include <windows.h> // для поддержки русского языка в консоли
 
 using namespace std; // чтобы не писать std:: перед каждой командой
@@ -75,8 +76,12 @@ int readInt() {
 // ============================================
 int main() {
     // Настраиваем консоль для корректного отображения русского языка
-    SetConsoleCP(65001);       // кодировка ввода UTF-8
-    SetConsoleOutputCP(65001); // кодировка вывода UTF-8
+    // UTF-8 кодировка
+    SetConsoleCP(65001);       // кодировка ввода
+    SetConsoleOutputCP(65001); // кодировка вывода
+    
+    // Устанавливаем локаль для корректной работы с русским текстом
+    setlocale(LC_ALL, "Russian");
     
     // Пробуем загрузить данные из файла при запуске
     loadFromFile();
@@ -257,17 +262,10 @@ void showAllStudents() {
     }
     
     // Выводим заголовок таблицы
-    cout << left; // выравнивание по левому краю
-    cout << setw(5) << "ID" 
-         << setw(30) << "ФИО" 
-         << setw(10) << "Группа"
-         << setw(6) << "Мат"
-         << setw(6) << "Физ"
-         << setw(6) << "Прог"
-         << setw(8) << "Сред." << "\n";
+    cout << "ID   ФИО                           Группа  Мат  Физ  Прог  Сред.\n";
     
     // Рисуем линию-разделитель
-    cout << string(71, '-') << "\n";
+    cout << string(65, '-') << "\n";
     
     // Проходим по всем студентам и выводим их данные
     for (size_t i = 0; i < students.size(); i++) {
@@ -276,16 +274,25 @@ void showAllStudents() {
                       students[i].physicsGrade + 
                       students[i].programmingGrade) / 3.0;
         
-        cout << setw(5) << students[i].id
-             << setw(30) << students[i].fullName
-             << setw(10) << students[i].group
-             << setw(6) << students[i].mathGrade
-             << setw(6) << students[i].physicsGrade
-             << setw(6) << students[i].programmingGrade
-             << setw(8) << fixed << setprecision(2) << avg << "\n";
+        // Выводим ID
+        cout << left << setw(5) << students[i].id;
+        
+        // Выводим ФИО (обрезаем если слишком длинное)
+        string name = students[i].fullName;
+        if (name.length() > 28) {
+            name = name.substr(0, 25) + "...";
+        }
+        cout << left << setw(30) << name;
+        
+        // Выводим остальные данные
+        cout << left << setw(8) << students[i].group;
+        cout << left << setw(5) << students[i].mathGrade;
+        cout << left << setw(5) << students[i].physicsGrade;
+        cout << left << setw(6) << students[i].programmingGrade;
+        cout << fixed << setprecision(2) << avg << "\n";
     }
     
-    cout << string(71, '-') << "\n";
+    cout << string(65, '-') << "\n";
     cout << "Всего студентов: " << students.size() << "\n";
     
     pauseProgram();
