@@ -1,26 +1,22 @@
 /*
  * Курсовая работа по дисциплине "Программирование и алгоритмизация"
- * Тема: Программа для работы с текстовыми файлами
- * 
- * Программа выполняет:
- * - Чтение текстового файла
- * - Запись в текстовый файл
- * - Анализ текста (подсчет символов, слов, строк)
  */
 
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <io.h>
+#include <fcntl.h>
 #include <windows.h>
 
 using namespace std;
 
-// Структура для хранения результатов анализа текста
+// Структура для хранения результатов анализа
 struct TextStats {
-    int symbolCount;    // количество символов
-    int wordCount;      // количество слов
-    int lineCount;      // количество строк
-    int spaceCount;     // количество пробелов
+    int symbolCount;
+    int wordCount;
+    int lineCount;
+    int spaceCount;
 };
 
 // Прототипы функций
@@ -32,22 +28,26 @@ void appendToFile();
 TextStats calculateStats(const string& filename);
 
 int main() {
-    // Устанавливаем кодировку для корректного отображения русских букв
-    SetConsoleCP(1251);
-    SetConsoleOutputCP(1251);
+    // Настройка консоли для вывода русского текста
+    _setmode(_fileno(stdout), _O_U16TEXT);
     
     int choice;
     
-    cout << "========================================" << endl;
-    cout << "  Программа для работы с текстовыми    " << endl;
-    cout << "           файлами                     " << endl;
-    cout << "========================================" << endl;
+    wcout << L"========================================" << endl;
+    wcout << L"  Программа для работы с текстовыми    " << endl;
+    wcout << L"           файлами                     " << endl;
+    wcout << L"========================================" << endl;
     
     do {
         showMenu();
-        cout << "Ваш выбор: ";
+        wcout << L"Ваш выбор: ";
+        
+        // Для ввода используем обычный cin
+        _setmode(_fileno(stdin), _O_TEXT);
+        _setmode(_fileno(stdout), _O_TEXT);
         cin >> choice;
-        cin.ignore(); // очищаем буфер после ввода числа
+        cin.ignore();
+        _setmode(_fileno(stdout), _O_U16TEXT);
         
         switch(choice) {
             case 1:
@@ -63,10 +63,10 @@ int main() {
                 appendToFile();
                 break;
             case 0:
-                cout << "\nВыход из программы. До свидания!" << endl;
+                wcout << L"\nВыход из программы. До свидания!" << endl;
                 break;
             default:
-                cout << "\nОшибка! Неверный пункт меню." << endl;
+                wcout << L"\nОшибка! Неверный пункт меню." << endl;
         }
         
     } while(choice != 0);
@@ -74,39 +74,41 @@ int main() {
     return 0;
 }
 
-// Функция отображения меню
 void showMenu() {
-    cout << "\n----------------------------------------" << endl;
-    cout << "            ГЛАВНОЕ МЕНЮ               " << endl;
-    cout << "----------------------------------------" << endl;
-    cout << "1. Создать новый файл" << endl;
-    cout << "2. Прочитать файл" << endl;
-    cout << "3. Анализ файла" << endl;
-    cout << "4. Дописать в файл" << endl;
-    cout << "0. Выход" << endl;
-    cout << "----------------------------------------" << endl;
+    wcout << L"\n----------------------------------------" << endl;
+    wcout << L"            ГЛАВНОЕ МЕНЮ               " << endl;
+    wcout << L"----------------------------------------" << endl;
+    wcout << L"1. Создать новый файл" << endl;
+    wcout << L"2. Прочитать файл" << endl;
+    wcout << L"3. Анализ файла" << endl;
+    wcout << L"4. Дописать в файл" << endl;
+    wcout << L"0. Выход" << endl;
+    wcout << L"----------------------------------------" << endl;
 }
 
-// Функция создания нового файла
 void createFile() {
     string filename;
     string text;
     
-    cout << "\nВведите имя файла (например: test.txt): ";
+    wcout << L"\nВведите имя файла (например: test.txt): ";
+    
+    _setmode(_fileno(stdout), _O_TEXT);
     getline(cin, filename);
     
-    // Открываем файл для записи
     ofstream file(filename.c_str());
     
+    _setmode(_fileno(stdout), _O_U16TEXT);
+    
     if (!file.is_open()) {
-        cout << "Ошибка! Не удалось создать файл." << endl;
+        wcout << L"Ошибка! Не удалось создать файл." << endl;
         return;
     }
     
-    cout << "Введите текст (для завершения введите пустую строку):" << endl;
-    cout << ">" << endl;
+    wcout << L"Введите текст (для завершения введите пустую строку):" << endl;
+    wcout << L">" << endl;
     
-    // Читаем строки пока пользователь не введет пустую строку
+    _setmode(_fileno(stdout), _O_TEXT);
+    
     while (true) {
         getline(cin, text);
         if (text.empty()) {
@@ -116,94 +118,103 @@ void createFile() {
     }
     
     file.close();
-    cout << "\nФайл '" << filename << "' успешно создан!" << endl;
+    
+    _setmode(_fileno(stdout), _O_U16TEXT);
+    wcout << L"\nФайл успешно создан!" << endl;
 }
 
-// Функция чтения файла
 void readFile() {
     string filename;
     string line;
     
-    cout << "\nВведите имя файла для чтения: ";
+    wcout << L"\nВведите имя файла для чтения: ";
+    
+    _setmode(_fileno(stdout), _O_TEXT);
     getline(cin, filename);
     
-    // Открываем файл для чтения
     ifstream file(filename.c_str());
     
+    _setmode(_fileno(stdout), _O_U16TEXT);
+    
     if (!file.is_open()) {
-        cout << "Ошибка! Файл '" << filename << "' не найден." << endl;
+        wcout << L"Ошибка! Файл не найден." << endl;
         return;
     }
     
-    cout << "\n--- Содержимое файла '" << filename << "' ---" << endl;
+    wcout << L"\n--- Содержимое файла ---" << endl;
     
-    // Читаем файл построчно
+    _setmode(_fileno(stdout), _O_TEXT);
+    
     while (getline(file, line)) {
         cout << line << endl;
     }
     
-    cout << "--- Конец файла ---" << endl;
+    _setmode(_fileno(stdout), _O_U16TEXT);
+    wcout << L"--- Конец файла ---" << endl;
     
     file.close();
 }
 
-// Функция анализа файла
 void analyzeFile() {
     string filename;
     
-    cout << "\nВведите имя файла для анализа: ";
+    wcout << L"\nВведите имя файла для анализа: ";
+    
+    _setmode(_fileno(stdout), _O_TEXT);
     getline(cin, filename);
     
-    // Проверяем существование файла
     ifstream testFile(filename.c_str());
+    
+    _setmode(_fileno(stdout), _O_U16TEXT);
+    
     if (!testFile.is_open()) {
-        cout << "Ошибка! Файл '" << filename << "' не найден." << endl;
+        wcout << L"Ошибка! Файл не найден." << endl;
         return;
     }
     testFile.close();
     
-    // Получаем статистику
     TextStats stats = calculateStats(filename);
     
-    // Выводим результаты анализа
-    cout << "\n======================================" << endl;
-    cout << "   РЕЗУЛЬТАТЫ АНАЛИЗА ФАЙЛА" << endl;
-    cout << "======================================" << endl;
-    cout << "Имя файла:           " << filename << endl;
-    cout << "--------------------------------------" << endl;
-    cout << "Количество строк:    " << stats.lineCount << endl;
-    cout << "Количество слов:     " << stats.wordCount << endl;
-    cout << "Количество символов: " << stats.symbolCount << endl;
-    cout << "Количество пробелов: " << stats.spaceCount << endl;
-    cout << "======================================" << endl;
+    wcout << L"\n======================================" << endl;
+    wcout << L"   РЕЗУЛЬТАТЫ АНАЛИЗА ФАЙЛА" << endl;
+    wcout << L"======================================" << endl;
+    wcout << L"Количество строк:    " << stats.lineCount << endl;
+    wcout << L"Количество слов:     " << stats.wordCount << endl;
+    wcout << L"Количество символов: " << stats.symbolCount << endl;
+    wcout << L"Количество пробелов: " << stats.spaceCount << endl;
+    wcout << L"======================================" << endl;
 }
 
-// Функция добавления текста в существующий файл
 void appendToFile() {
     string filename;
     string text;
     
-    cout << "\nВведите имя файла для дополнения: ";
+    wcout << L"\nВведите имя файла для дополнения: ";
+    
+    _setmode(_fileno(stdout), _O_TEXT);
     getline(cin, filename);
     
-    // Проверяем существование файла
     ifstream testFile(filename.c_str());
+    
+    _setmode(_fileno(stdout), _O_U16TEXT);
+    
     if (!testFile.is_open()) {
-        cout << "Ошибка! Файл '" << filename << "' не найден." << endl;
+        wcout << L"Ошибка! Файл не найден." << endl;
         return;
     }
     testFile.close();
     
-    // Открываем файл для добавления (режим app)
     ofstream file(filename.c_str(), ios::app);
     
     if (!file.is_open()) {
-        cout << "Ошибка! Не удалось открыть файл." << endl;
+        wcout << L"Ошибка! Не удалось открыть файл." << endl;
         return;
     }
     
-    cout << "Введите текст для добавления (пустая строка - завершить):" << endl;
-    cout << ">" << endl;
+    wcout << L"Введите текст для добавления (пустая строка - завершить):" << endl;
+    wcout << L">" << endl;
+    
+    _setmode(_fileno(stdout), _O_TEXT);
     
     while (true) {
         getline(cin, text);
@@ -214,10 +225,11 @@ void appendToFile() {
     }
     
     file.close();
-    cout << "\nТекст успешно добавлен в файл!" << endl;
+    
+    _setmode(_fileno(stdout), _O_U16TEXT);
+    wcout << L"\nТекст успешно добавлен в файл!" << endl;
 }
 
-// Функция подсчета статистики текста
 TextStats calculateStats(const string& filename) {
     TextStats stats;
     stats.symbolCount = 0;
@@ -233,17 +245,14 @@ TextStats calculateStats(const string& filename) {
         
         bool inWord = false;
         
-        // Проходим по каждому символу строки
-        for (int i = 0; i < line.length(); i++) {
+        for (size_t i = 0; i < line.length(); i++) {
             char c = line[i];
             stats.symbolCount++;
             
-            // Подсчет пробелов
             if (c == ' ') {
                 stats.spaceCount++;
                 inWord = false;
             }
-            // Подсчет слов (слово начинается с непробельного символа)
             else if (!inWord) {
                 stats.wordCount++;
                 inWord = true;
