@@ -79,11 +79,10 @@ int main() {
     return 0;
 }
 
-// Настройка консоли для русского языка
+// Настройка консоли для русского языка (UTF-8)
 void setupConsole() {
     SetConsoleCP(65001);
     SetConsoleOutputCP(65001);
-}
 }
 
 // Функция отображения меню
