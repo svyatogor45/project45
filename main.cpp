@@ -81,9 +81,9 @@ int main() {
 
 // Настройка консоли для русского языка
 void setupConsole() {
-    system("chcp 1251 > nul");
-    SetConsoleCP(1251);
-    SetConsoleOutputCP(1251);
+    SetConsoleCP(65001);
+    SetConsoleOutputCP(65001);
+}
 }
 
 // Функция отображения меню
