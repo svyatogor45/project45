@@ -1,17 +1,22 @@
 /*
  * Курсовая работа по дисциплине "Программирование и алгоритмизация"
+ * Тема: Программа для работы с текстовыми файлами
+ * 
+ * Программа выполняет:
+ * - Чтение текстового файла
+ * - Запись в текстовый файл
+ * - Анализ текста (подсчет символов, слов, строк)
  */
 
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <io.h>
-#include <fcntl.h>
 #include <windows.h>
+#include <cstdlib>
 
 using namespace std;
 
-// Структура для хранения результатов анализа
+// Структура для хранения результатов анализа текста
 struct TextStats {
     int symbolCount;
     int wordCount;
@@ -20,6 +25,7 @@ struct TextStats {
 };
 
 // Прототипы функций
+void setupConsole();
 void showMenu();
 void createFile();
 void readFile();
@@ -28,26 +34,19 @@ void appendToFile();
 TextStats calculateStats(const string& filename);
 
 int main() {
-    // Настройка консоли для вывода русского текста
-    _setmode(_fileno(stdout), _O_U16TEXT);
+    setupConsole();
     
     int choice;
     
-    wcout << L"========================================" << endl;
-    wcout << L"  Программа для работы с текстовыми    " << endl;
-    wcout << L"           файлами                     " << endl;
-    wcout << L"========================================" << endl;
+    cout << "========================================" << endl;
+    cout << "  Программа для работы с текстовыми    " << endl;
+    cout << "           файлами                     " << endl;
+    cout << "========================================" << endl;
     
     do {
         showMenu();
-        wcout << L"Ваш выбор: ";
-        
-        // Для ввода используем обычный cin
-        _setmode(_fileno(stdin), _O_TEXT);
-        _setmode(_fileno(stdout), _O_TEXT);
         cin >> choice;
-        cin.ignore();
-        _setmode(_fileno(stdout), _O_U16TEXT);
+        cin.ignore(1000, '\n');
         
         switch(choice) {
             case 1:
@@ -63,10 +62,16 @@ int main() {
                 appendToFile();
                 break;
             case 0:
-                wcout << L"\nВыход из программы. До свидания!" << endl;
+                cout << "\nВыход из программы. До свидания!" << endl;
                 break;
             default:
-                wcout << L"\nОшибка! Неверный пункт меню." << endl;
+                cout << "\nОшибка! Неверный пункт меню." << endl;
+        }
+        
+        if (choice != 0) {
+            cout << "\nНажмите Enter...";
+            cin.get();
+            system("cls");
         }
         
     } while(choice != 0);
@@ -74,40 +79,45 @@ int main() {
     return 0;
 }
 
-void showMenu() {
-    wcout << L"\n----------------------------------------" << endl;
-    wcout << L"            ГЛАВНОЕ МЕНЮ               " << endl;
-    wcout << L"----------------------------------------" << endl;
-    wcout << L"1. Создать новый файл" << endl;
-    wcout << L"2. Прочитать файл" << endl;
-    wcout << L"3. Анализ файла" << endl;
-    wcout << L"4. Дописать в файл" << endl;
-    wcout << L"0. Выход" << endl;
-    wcout << L"----------------------------------------" << endl;
+// Настройка консоли для русского языка
+void setupConsole() {
+    system("chcp 1251 > nul");
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
 }
 
+// Функция отображения меню
+void showMenu() {
+    cout << "\n----------------------------------------" << endl;
+    cout << "            ГЛАВНОЕ МЕНЮ               " << endl;
+    cout << "----------------------------------------" << endl;
+    cout << "1. Создать новый файл" << endl;
+    cout << "2. Прочитать файл" << endl;
+    cout << "3. Анализ файла" << endl;
+    cout << "4. Дописать в файл" << endl;
+    cout << "0. Выход" << endl;
+    cout << "----------------------------------------" << endl;
+    cout << "Ваш выбор: ";
+}
+
+// Функция создания нового файла
 void createFile() {
     string filename;
     string text;
     
-    wcout << L"\nВведите имя файла (например: test.txt): ";
-    
-    _setmode(_fileno(stdout), _O_TEXT);
+    cout << "\n=== Создание файла ===" << endl;
+    cout << "Введите имя файла (например: test.txt): ";
     getline(cin, filename);
     
     ofstream file(filename.c_str());
     
-    _setmode(_fileno(stdout), _O_U16TEXT);
-    
     if (!file.is_open()) {
-        wcout << L"Ошибка! Не удалось создать файл." << endl;
+        cout << "Ошибка! Не удалось создать файл." << endl;
         return;
     }
     
-    wcout << L"Введите текст (для завершения введите пустую строку):" << endl;
-    wcout << L">" << endl;
-    
-    _setmode(_fileno(stdout), _O_TEXT);
+    cout << "Введите текст (пустая строка - завершить):" << endl;
+    cout << ">" << endl;
     
     while (true) {
         getline(cin, text);
@@ -118,88 +128,77 @@ void createFile() {
     }
     
     file.close();
-    
-    _setmode(_fileno(stdout), _O_U16TEXT);
-    wcout << L"\nФайл успешно создан!" << endl;
+    cout << "\nФайл '" << filename << "' успешно создан!" << endl;
 }
 
+// Функция чтения файла
 void readFile() {
     string filename;
     string line;
     
-    wcout << L"\nВведите имя файла для чтения: ";
-    
-    _setmode(_fileno(stdout), _O_TEXT);
+    cout << "\n=== Чтение файла ===" << endl;
+    cout << "Введите имя файла: ";
     getline(cin, filename);
     
     ifstream file(filename.c_str());
     
-    _setmode(_fileno(stdout), _O_U16TEXT);
-    
     if (!file.is_open()) {
-        wcout << L"Ошибка! Файл не найден." << endl;
+        cout << "Ошибка! Файл '" << filename << "' не найден." << endl;
         return;
     }
     
-    wcout << L"\n--- Содержимое файла ---" << endl;
-    
-    _setmode(_fileno(stdout), _O_TEXT);
+    cout << "\n--- Содержимое файла ---" << endl;
     
     while (getline(file, line)) {
         cout << line << endl;
     }
     
-    _setmode(_fileno(stdout), _O_U16TEXT);
-    wcout << L"--- Конец файла ---" << endl;
+    cout << "--- Конец файла ---" << endl;
     
     file.close();
 }
 
+// Функция анализа файла
 void analyzeFile() {
     string filename;
     
-    wcout << L"\nВведите имя файла для анализа: ";
-    
-    _setmode(_fileno(stdout), _O_TEXT);
+    cout << "\n=== Анализ файла ===" << endl;
+    cout << "Введите имя файла: ";
     getline(cin, filename);
     
     ifstream testFile(filename.c_str());
-    
-    _setmode(_fileno(stdout), _O_U16TEXT);
-    
     if (!testFile.is_open()) {
-        wcout << L"Ошибка! Файл не найден." << endl;
+        cout << "Ошибка! Файл '" << filename << "' не найден." << endl;
         return;
     }
     testFile.close();
     
     TextStats stats = calculateStats(filename);
     
-    wcout << L"\n======================================" << endl;
-    wcout << L"   РЕЗУЛЬТАТЫ АНАЛИЗА ФАЙЛА" << endl;
-    wcout << L"======================================" << endl;
-    wcout << L"Количество строк:    " << stats.lineCount << endl;
-    wcout << L"Количество слов:     " << stats.wordCount << endl;
-    wcout << L"Количество символов: " << stats.symbolCount << endl;
-    wcout << L"Количество пробелов: " << stats.spaceCount << endl;
-    wcout << L"======================================" << endl;
+    cout << "\n======================================" << endl;
+    cout << "   РЕЗУЛЬТАТЫ АНАЛИЗА" << endl;
+    cout << "======================================" << endl;
+    cout << "Файл: " << filename << endl;
+    cout << "--------------------------------------" << endl;
+    cout << "Строк:    " << stats.lineCount << endl;
+    cout << "Слов:     " << stats.wordCount << endl;
+    cout << "Символов: " << stats.symbolCount << endl;
+    cout << "Пробелов: " << stats.spaceCount << endl;
+    cout << "======================================" << endl;
 }
 
+// Функция добавления текста в файл
 void appendToFile() {
     string filename;
     string text;
     
-    wcout << L"\nВведите имя файла для дополнения: ";
-    
-    _setmode(_fileno(stdout), _O_TEXT);
+    cout << "\n=== Дополнение файла ===" << endl;
+    cout << "Введите имя файла: ";
     getline(cin, filename);
     
     ifstream testFile(filename.c_str());
-    
-    _setmode(_fileno(stdout), _O_U16TEXT);
-    
     if (!testFile.is_open()) {
-        wcout << L"Ошибка! Файл не найден." << endl;
+        cout << "Ошибка! Файл '" << filename << "' не найден." << endl;
         return;
     }
     testFile.close();
@@ -207,14 +206,12 @@ void appendToFile() {
     ofstream file(filename.c_str(), ios::app);
     
     if (!file.is_open()) {
-        wcout << L"Ошибка! Не удалось открыть файл." << endl;
+        cout << "Ошибка! Не удалось открыть файл." << endl;
         return;
     }
     
-    wcout << L"Введите текст для добавления (пустая строка - завершить):" << endl;
-    wcout << L">" << endl;
-    
-    _setmode(_fileno(stdout), _O_TEXT);
+    cout << "Введите текст (пустая строка - завершить):" << endl;
+    cout << ">" << endl;
     
     while (true) {
         getline(cin, text);
@@ -225,11 +222,10 @@ void appendToFile() {
     }
     
     file.close();
-    
-    _setmode(_fileno(stdout), _O_U16TEXT);
-    wcout << L"\nТекст успешно добавлен в файл!" << endl;
+    cout << "\nТекст добавлен!" << endl;
 }
 
+// Функция подсчета статистики
 TextStats calculateStats(const string& filename) {
     TextStats stats;
     stats.symbolCount = 0;
