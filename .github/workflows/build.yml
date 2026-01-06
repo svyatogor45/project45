@@ -15,6 +15,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
+    - name: List files
+      run: |
+        echo "=== Files in repository ==="
+        Get-ChildItem -Recurse -Name
+    
     - name: Build with g++
       run: g++ -o MatrixOperations.exe matrix_operations.cpp -static -static-libgcc -static-libstdc++
     
