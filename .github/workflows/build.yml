@@ -15,15 +15,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Configure CMake
-      run: cmake -S . -B build
-    
-    - name: Build
-      run: cmake --build build --config Release
+    - name: Build with g++
+      run: g++ -o MatrixOperations.exe matrix_operations.cpp -static -static-libgcc -static-libstdc++
     
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: TextAnalyzer-Windows
-        path: build/Release/TextAnalyzer.exe
+        name: MatrixOperations-Windows
+        path: MatrixOperations.exe
         retention-days: 30
