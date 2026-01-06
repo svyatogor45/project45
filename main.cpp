@@ -50,9 +50,9 @@ void swapRows(int num);
 void swapCols(int num);
 
 int main() {
-    // Настройка консоли для вывода русских символов
-    SetConsoleCP(1251);
-    SetConsoleOutputCP(1251);
+    // Настройка консоли для вывода русских символов (UTF-8)
+    SetConsoleCP(65001);
+    SetConsoleOutputCP(65001);
     
     // Инициализация генератора случайных чисел
     srand(time(NULL));
