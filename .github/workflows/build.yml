@@ -21,7 +21,7 @@ jobs:
         Get-ChildItem -Recurse -Name
     
     - name: Build with g++
-      run: g++ -o MatrixOperations.exe matrix_operations.cpp -static -static-libgcc -static-libstdc++
+      run: g++ -o MatrixOperations.exe main.cpp -static -static-libgcc -static-libstdc++
     
     - name: Upload artifact
       uses: actions/upload-artifact@v4
